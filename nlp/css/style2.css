@@ -1,0 +1,275 @@
+/* 
+    Starry Night DEMO
+    chriscoyier@gmail.com
+    http://chriscoyier.net
+*/
+
+* { margin: 0; padding: 0; }
+
+html { overflow-y: scroll; }
+
+.clear {
+	clear: both;
+}
+
+.floatLeft {
+	float: left;
+}
+
+.floatRight {
+	float: right;
+}
+
+body { 
+	font: 10px/2 "Lucida Grande", Helvetica, Sans-Serif;
+	color: #eee;
+	margin:0;
+	width:100%;
+}
+
+@-webkit-keyframes STAR-MOVE {
+	from {
+		left: 0;
+		top: 0;
+	}
+	to { 
+		left: -10000px;
+		top: -2000px;
+	}
+}
+
+#background {
+	/*background: black url(../images/background.png) repeat 5% 5%; #1a20a3*/
+	background-color:#1a20a3;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 100;
+	
+	-webkit-animation-name: STAR-MOVE;
+	-webkit-animation-duration: 200s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-iteration-count: infinite;
+}
+
+#midground {
+	background: url(../images/midground.png) repeat 20% 20%;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 200;
+	
+	-webkit-animation-name: STAR-MOVE;
+	-webkit-animation-duration: 150s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-iteration-count: infinite;
+}
+
+#foreground {
+	background: url(../images/foreground.png) repeat 35% 35%;
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 300;
+	
+	-webkit-animation-name: STAR-MOVE;
+	-webkit-animation-duration: 100s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-iteration-count: infinite;
+}
+
+#sidebar {
+	width: 160px;
+	float: left;
+	margin-right: 20px;
+}
+
+#main-content {
+	width: 540px;
+	float: right;
+}
+
+#page-wrap {
+    
+	margin: 0 auto;
+	position: relative;
+	z-index: 300;
+	/*background: #1e3a66 rgba(0,0,0,0.7);
+	overflow: hidden;
+	padding: 0px 0px;*/
+}
+
+h1 {
+	font: 42px Georgia, Serif;
+	margin: 0 0 10px 0;
+	color: #eee;
+}
+
+h2 {
+	font: 20px Georgia, Serif;
+	margin: 0 0 1px 0;
+	color: #eee;
+}
+
+h2.bump {
+	text-indent: 200px;
+}
+
+p {
+	margin: 0 0 15px 0;
+	color: #999;
+}
+
+code {
+	color: white;
+	margin: -1px 0 0 0;
+	font: 10px Courier;
+}
+
+p.thinParagraph {
+	width: 340px;
+}
+
+blockquote {
+	font: italic 15px/20px Georgia, Serif;
+	width: 180px;
+}
+
+blockquote p {
+	color: white;
+}
+
+blockquote.right {
+	float: right;
+}
+
+ul.meta {
+	width: 180px;
+	margin: 0 10px 0 0;
+	list-style: none;
+	float: left;
+}
+
+ul.meta li {
+	text-align: right;
+}
+
+ul.meta li.author {
+	font: normal small-caps normal 15px Georgia, Serif;
+	margin: 0 0 2px 0;
+	letter-spacing: 2px;
+}
+
+ul.meta li.date {
+	margin: 0 0 10px 0;
+}
+
+ul.meta li.comments {
+	font-style: italic;
+}
+
+.article {
+	float: right;
+	width: 340px;
+}
+
+ol {
+	margin: 20px 0;
+	list-style: inside decimal;
+}
+
+/*buttons*/
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 19px;
+  margin: 4px 2px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width: 45%;
+}
+
+
+.button2 {
+  background-color: white; 
+  color: black; 
+  border: 2px solid #008CBA;
+}
+
+.button2:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+/*glow text*/
+
+
+/*circle*/
+.circlediv {
+	margin: 20px 10px 10px;
+	text-align: center;
+	font-family: sans-serif;
+}
+
+.circle {
+	margin:auto;
+	padding: 10px;
+	color:white;
+    vertical-align: middle;
+    background-color: rgb(0,0,143);
+
+	-webkit-box-shadow: -6px -8px 10px #00BFFF, -4px 7px 10px #1E90FF, 6px -4px 10px rgb(240, 11, 68);
+	-moz-box-shadow: -6px -8px 10px #00BFFF, -4px 7px 10px #1E90FF, 6px -4px 10px #0000FF;
+	box-shadow: -6px -8px 10px #00BFFF, -4px 7px 10px #00BFFF, 6px -4px 10px #00BFFF;
+
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+
+	-webkit-transition: box-shadow .4s ease;
+	-moz-transition: box-shadow .4s ease;
+	-o-transition: box-shadow .4s ease;
+	-ms-transition: box-shadow .4s ease;
+	transition: box-shadow .4s ease;
+}
+
+.circle:hover {
+	-webkit-box-shadow: -6px -8px 10px #B0E0E6, -4px 7px 10px #0000CD, 6px -4px 10px #191970;
+	-moz-box-shadow: -6px -8px 10px #B0E0E6, -4px 7px 10px #0000CD, 6px -4px 10px #191970;
+	box-shadow: -6px -8px 10px rgb(240, 11, 68), -4px 7px 10px rgb(240, 11, 68), 6px -4px 10px rgb(240, 11, 68);
+}
+
+#leftcolumn,
+#rightcolumn {
+  border: 1px solid white;
+  float: left;
+  height: 20em;
+  color: white;
+}
+
+#leftcolumn {
+  width: 40%;
+}
+
+#rightcolumn {
+  width: 40%;
+  margin-left:20%;
+}
+
+::-ms-browse {
+  background: black;
+  color: red;
+  padding: 1em;
+}
+::-webkit-file-upload-button {
+background-color: ; /* Green */
+
+}
+
+#rightcolumn input{
+  float:left;
+}
+
