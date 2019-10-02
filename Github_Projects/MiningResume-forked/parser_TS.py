@@ -7,7 +7,7 @@ import os
 
 os.chdir(r'/home/tanmay/Desktop/My Projects/ResumeOCR/Resume')
 
-print(read_document('MAYANK Resume.pdf'))
+
 
 ## Reader: ToDo: use another file reader.py to import various formats, convert to txt and clean docs, here, below
 def read_document(filepath):
@@ -15,6 +15,8 @@ def read_document(filepath):
     raw = f.read()
     f.close()
     return raw
+
+print(read_document('MAYANK Resume.pdf'))
 
 ### Extraction Methods, called by string "name" as specified in config
 

@@ -60,13 +60,21 @@ def extract_text(filename):
 
 #########################################################################################################################################
 
+# Finding text based on following types:
+# 1. FindAbs - Just use regex to filter
+# 2. FindList - Use the regex and grammar to search if regex specified and
+#               Use the mentioned file to pick the specified names
+# 3. NLTK - Use the regex and grammar to search
+# 4. None of the above - Search for the keyword and use text after it using Regex
+
+
 # Find mentioned fields values using mapping
 def find_text(textstr, filename):
 
         # Reading csv containing all master data related to fields
         xlsx = pd.ExcelFile('../Master_Data.xlsx')
         df = pd.read_excel(xlsx, 'Field_Match')
-        df_key = pd.read_excel(xlsx, 'Keywords')
+        df_key = pd.read_excel(xlsx, 'Sections')
 
         # Reading index and text from passed string to extract each sentence
         for txt,text in textstr.iteritems():
@@ -90,13 +98,8 @@ def find_text(textstr, filename):
                                 print(matches)
 
                 #Printing blocks from resume
-                for i in df_key.iterrows():
+                #for i in df_key.iterrows():
                         
-
-
-
-
-
 
         # Reading index and text from passed string to extract each sentence
         for txt,text in textstr.iteritems():

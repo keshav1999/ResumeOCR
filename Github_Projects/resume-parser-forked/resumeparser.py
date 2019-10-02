@@ -16,6 +16,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 import urllib2
 from urllib2 import urlopen
+
 #Function converting pdf to string
 def convert(fname, pages=None):
     if not pages:
@@ -36,6 +37,7 @@ def convert(fname, pages=None):
     text = output.getvalue()
     output.close
     return text
+    
 #Function to extract names from the string using spacy
 def extract_name(string):
     r1 = unicode(string)
@@ -45,6 +47,7 @@ def extract_name(string):
         if(ent.label_ == 'PER'):
             print(ent.text)
             break
+
 #Function to extract Phone Numbers from string using regular expressions
 def extract_phone_numbers(string):
     r = re.compile(r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})')
