@@ -14,6 +14,17 @@ def process_resume(filename):
     # extract_text(r'..//home/tanmay/Desktop/MyProjects/InvoiceOCR/Invoices/Invoice_Exp_Dec001_Veneklasen.pdf')
     textstr = extract_text(filename)
 
+
+    # Reading csv containing all master data related to fields
+    xlsx = pd.ExcelFile('../Master_Data.xlsx')
+    df = pd.read_excel(xlsx, 'Field_Match')
+    
+    # Reading index and text from passed string to extract each sentence
+    for index,nu in df.iterrows():
+    
+    
+    
+    
     #print csv  
     textstr.to_csv('Resume.csv')
 
