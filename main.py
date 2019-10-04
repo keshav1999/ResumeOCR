@@ -21,8 +21,8 @@ def process_resume(filename):
     
     # Reading index and text from passed string to extract each sentence
     for index,nu in df.iterrows():
-    
-    
+
+        df_filter = df.
     
     
     #print csv  
