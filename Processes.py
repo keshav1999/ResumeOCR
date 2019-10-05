@@ -19,7 +19,10 @@ import math
 # 3. FindSec - Filter the text string for the specified section 
 # 4. 
 # 5. GetSections - To get all the sections present in the resume
-# 6. Extract data from image or pdfs
+# 6. ExtractText - Extract data from image or pdfs
+# 7. RefineMatches - function to refine multiple regex matches and values
+# 8. ReplacePhrases - Function to replace text
+# 9. listToString - Function to convert   
 
 #########################################################################################################################################
 # 1. FindAbs - Just use regex to filter
@@ -35,10 +38,9 @@ def FindReg(textstr, field_match):
 
 #########################################################################################################################################
 
-# 2. FindList - Use the regex and grammar to search if regex specified and
-#               Use the mentioned file to pick the specified names
+# 2. FindList - Use the mentioned file to pick the specified names
 
-def Findlist(textstr, field_match, matches):
+def Findlist(textstr, field_match):
 
     # Reading file to match the master value list
     file_name = field_match[7]
@@ -48,31 +50,16 @@ def Findlist(textstr, field_match, matches):
     ind = 0
     col_names=['Field','Match_Field','text']
     MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
-
-    # if regex is present
-    if len(matches) != '':
         
-        #comparing matched values against the read master values
-        for i in matches:
-
-            match_master = mas_list.loc[mas_list['Values'] == i]
-
-            if len(match_master) != 0:
-
-                MatchedValues.iloc[ind,0]= field_match[0]
-                MatchedValues.iloc[ind,1]= field_match[1]
-                MatchedValues.iloc[ind,2] = i
-    else:
+    for i in mas_list['Values']:
         
-        for i in mas_list['Values']:
-            
-            loc = textstr.find(i)
+        loc = textstr.find(i)
 
-            if loc>0:
-            
-                MatchedValues.iloc[ind,0]= field_match[0]
-                MatchedValues.iloc[ind,1]= field_match[1]
-                MatchedValues.iloc[ind,2] = i
+        if loc>0:
+        
+            MatchedValues.iloc[ind,0]= field_match[0]
+            MatchedValues.iloc[ind,1]= field_match[1]
+            MatchedValues.iloc[ind,2] = i
 
     print(MatchedValues)
     return(MatchedValues)
@@ -108,7 +95,7 @@ def FindSec(textstr, field_match, next_section):
 
 # 5. To get all the sections present in the resume
 
-def GetSections(textstr,section):
+def GetSections(textstr):
     
     # Finding sections in the resume
     xlsx = pd.ExcelFile('../Master_Data.xlsx')
@@ -131,7 +118,7 @@ def GetSections(textstr,section):
 #########################################################################################################################################
 # 6. to extract text from image or pdfs
 
-def extract_text(filename):
+def ExtractText(filename):
 
         i=0
         lst = []
@@ -163,5 +150,55 @@ def extract_text(filename):
 
         textstr = pd.Series(lst)
         return(textstr)
+
+#########################################################################################################################################
+
+# 7. function to refine multiple regex matches and values
+# True  - means none of the filters matched
+# False - means filter applied and not to be considered
+def RefineMatches(text, filter_regex, filter_values):
+
+        skip = True
+        if str(filter_values) != '' :
+                # Check filter text
+                for filter in filter_values.split('|'):
+                        if text == filter:
+                                skip = False
+
+        # Check filter regex
+        if str(filter_regex) != '' :
+                for regex in filter_regex.split('|'):
+                        pattern = re.compile(regex)
+                        matchflag = re.search(pattern, text)
+                        if matchflag:
+                                skip = False
+        return(skip)
+
+#########################################################################################################################################
+# 8. Function to replace text
+def ReplacePhrases(text, replace_text):
+
+        final = True
+        if str(replace_text) != '' :
+                # Check filter text
+                for phrase in replace_text.split('|'):
+                        text = text.replace(phrase,'')
+
+        return(text)
+
+#########################################################################################################################################
+
+# 9. listToString - Function to convert   
+def listToString(s):  
+    
+    # initialize an empty string 
+    str1 = ""  
+    
+    # traverse in the string   
+    for ele in s:  
+        str1 = str1 + ele + ' '
+    
+    # return string   
+    return str1  
 
 #########################################################################################################################################
