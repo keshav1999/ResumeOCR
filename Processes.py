@@ -1,17 +1,24 @@
 from pytesseract import image_to_string, image_to_data, Output
 from pdf2image import convert_from_path
 import os
-#import nltk
+import sys
 import numpy as np
 import pandas as pd
 from textblob import TextBlob
+import pytesseract
 import re
 from verbalexpressions import VerEx
 from pathlib import Path
 import cv2
 from PIL import Image
+import subprocess
+from subprocess import  Popen
 import math
-
+import xlwt 
+from xlwt import Workbook
+import nltk
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 # Functions to filter out the required text:
 # 1. FindReg - Just use regex to filter
 # 2. FindList - Use the regex and grammar to search if regex specified and
@@ -23,17 +30,18 @@ import math
 # 7. RefineMatches - function to refine multiple regex matches and values
 # 8. ReplacePhrases - Function to replace text
 # 9. listToString - Function to convert   
+# 10. find_next_section - Use to find where from next section start
+# 11. extractName - Use file name or any string and extract name from it
+# 12. Filter_Values - Remove duplicates from dataframe
 
 #########################################################################################################################################
 # 1. FindAbs - Just use regex to filter
 # Find mentioned fields values using mapping
 
 def FindReg(textstr, field_match):
-
     Pattern = re.compile(field_match[2])
+    print(Pattern)
     matches = Pattern.findall(textstr)
-    
-    print(matches)
     return(matches)
 
 #########################################################################################################################################
@@ -41,55 +49,72 @@ def FindReg(textstr, field_match):
 # 2. FindList - Use the mentioned file to pick the specified names
 
 def Findlist(textstr, field_match):
-
     # Reading file to match the master value list
     file_name = field_match[7]
-    mas_list = pd.read_csv(file_name)
+    try:
+                if math.isnan(file_name) == True:
+                        col_names=['Field','Match_Field','text']
+                        ind = 0
+                        MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
+                        MatchedValues.iloc[ind,0]= field_match[0]
+                        MatchedValues.iloc[ind,1]= field_match[1]
+                        MatchedValues.iloc[ind,2] = textstr
+                        context[field_match[1]] = textstr
+                else: 
+                        xlsx = pd.ExcelFile('../Master_Data.xlsx')
+                        mas_list = pd.read_excel(xlsx, file_name)  
+                        ind = 0
+                        col_names=['Field','Match_Field','text']
+                        MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
+                                
+                        for i in mas_list['Values']:
+                                
+                                loc = textstr.find(i)
 
-    # Declaring variables to store final results    
-    ind = 0
-    col_names=['Field','Match_Field','text']
-    MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
-        
-    for i in mas_list['Values']:
-        
-        loc = textstr.find(i)
-
-        if loc>0:
-        
-            MatchedValues.iloc[ind,0]= field_match[0]
-            MatchedValues.iloc[ind,1]= field_match[1]
-            MatchedValues.iloc[ind,2] = i
-
-    print(MatchedValues)
+                                if loc>0:
+                                
+                                        MatchedValues.iloc[ind,0]= field_match[0]
+                                        MatchedValues.iloc[ind,1]= field_match[1]
+                                        MatchedValues.iloc[ind,2] = i
+    except: 
+                col_names=['Field','Match_Field','text']
+                ind = 0
+                MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
+                MatchedValues.iloc[ind,0]= field_match[0]
+                MatchedValues.iloc[ind,1]= field_match[1]
+                MatchedValues.iloc[ind,2] = textstr 
     return(MatchedValues)
 
 #########################################################################################################################################
 
 # 3. FindSec - it will filter the text for a particular section
 def FindSec(textstr, field_match, next_section):
-
-    # pick the section to be filtered
     section = field_match[8]
-
+    i=0
     # extract words
-    blob = blob(textstr)
+    textstr = str(textstr)
+    blob = TextBlob(textstr)
     extracted_text =''
-
     section_found = 0
-
-    for i in range(0,len(blob.words)):
-
-        if (blob.words[i] == section) or (blob.words[i] + ' ' + blob.words[i+1] == section) or (blob.words[i] + ' ' + blob.words[i+1] + ' ' + blob.words[i+2] == section) :
-            section_found=1
-        
-        if section_found == 1:
-
-            if (blob.words[i] == next_section) or (blob.words[i] + ' ' + blob.words[i+1] == next_section) or (blob.words[i] + ' ' + blob.words[i+1] + ' ' + blob.words[i+2] == next_section) :
-
-                extracted_text = extracted_text + blob.words[i] + ' '
-
-    return()
+    count = 0
+    for i in range(0,len(blob.words)-1):
+        if ((blob.words[i].upper() == section.upper()) or (blob.words[i].upper() + ' ' + blob.words[i+1].upper() == section.upper())) :
+           if ((blob.words[i].upper() + ' ' + blob.words[i+1].upper() == section.upper())):
+               section_found=1   
+               continue
+           else:
+               section_found=2
+        elif section_found == 2 or section_found == 1: 
+            count = count + 1
+            if (blob.words[i].upper() == next_section.upper()) or (blob.words[i].upper() + ' ' + blob.words[i+1].upper() == next_section.upper()) or (blob.words[i].upper() + ' ' + blob.words[i+1].upper()) :
+                if count != 1:
+                        value = find_next_section(blob.words[i].upper())
+                        if value == 0 or value == "experience":
+                                extracted_text = extracted_text + blob.words[i] + ' '
+                        else:
+                                break
+    print(extracted_text)    
+    return(extracted_text)
 
 #########################################################################################################################################
 
@@ -100,59 +125,75 @@ def GetSections(textstr):
     # Finding sections in the resume
     xlsx = pd.ExcelFile('../Master_Data.xlsx')
     sec = pd.read_excel(xlsx, 'Sections')
-    
     all_sections = []
     ind=0
-
+#     wb = Workbook() 
+#     sheet1 = wb.add_sheet("New")
+    
     # Filtering the sections
-    for i in sec['Keywords']:
-        
-        loc = textstr.find(i)
-
+    j = 0
+    for i in sec['Keyword']:   
+        print(i)     
+        loc = listToString(textstr).upper().find(i.upper())
+        print(loc)
+        ind = 0
         if loc>0:
-            all_sections[ind]=i
-            ind=ind+1
-
-    return(all_sections)
-
+            all_sections.append(sec['Section'][j])
+            print(i)
+        #     sheet1.write(ind, 0, i) 
+            ind=ind+1   
+        j = j + 1
+#     wb.save("Master_Data.xlsx") 
+    return(pd.Series(all_sections))
 #########################################################################################################################################
 # 6. to extract text from image or pdfs
 
 def ExtractText(filename):
-
+        path = os.chdir(r'/home/tanmay/Desktop/My Projects/ResumeOCRfile/Resume')
+        image_to_string_text = ""
         i=0
         lst = []
         # Getting file extension
         file, file_extension = os.path.splitext(filename)
-
+        print(file_extension)
+        wdFormatPDF = 17
+        print(file_extension)
         if file_extension=='.jpg' or file_extension=='.jpeg' or file_extension=='.png' :
 
                 #Converting file name to image array
                 img = cv2.imread(filename)
-                #img_processed = preprocessing_image(img)
-
                 text = image_to_string(Image.fromarray(img))
+                image_to_string_text = image_to_string_text + text
                 lst.append(text)
-
+        if file_extension=='.doc'or file_extension=='.docx':
+                cmd = 'libreoffice --convert-to pdf'.split() + [filename]
+                print(cmd)
+                p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                print(p)
+                p.wait(timeout=10)
+                stdout, stderr = p.communicate()
+                print(stderr)
+                if stderr:
+                        raise subprocess.SubprocessError(stderr)
+                file_extension = '.pdf'
+                filename = file+'.pdf'
+                print(filename)
         if file_extension=='.pdf':
                 pages = convert_from_path(filename)
-
                 for page in pages:
                         page.save('out' +str(i)+'.jpg','JPEG')
 
                         #Converting file name to image array
                         img = cv2.imread('out' +str(i)+'.jpg')
-                        #img_processed = preprocessing_image(img)
-
                         text = image_to_string(Image.fromarray(img))
+                        blob = TextBlob(text)
+                        data = pytesseract.image_to_string(img, output_type=Output.DICT)
+                        image_to_string_text = image_to_string_text + text
                         lst.append(text)
                         i=i+1
-
         textstr = pd.Series(lst)
-        return(textstr)
-
+        return(textstr,image_to_string_text)
 #########################################################################################################################################
-
 # 7. function to refine multiple regex matches and values
 # True  - means none of the filters matched
 # False - means filter applied and not to be considered
@@ -164,7 +205,6 @@ def RefineMatches(text, filter_regex, filter_values):
                 for filter in filter_values.split('|'):
                         if text == filter:
                                 skip = False
-
         # Check filter regex
         if str(filter_regex) != '' :
                 for regex in filter_regex.split('|'):
@@ -173,7 +213,6 @@ def RefineMatches(text, filter_regex, filter_values):
                         if matchflag:
                                 skip = False
         return(skip)
-
 #########################################################################################################################################
 # 8. Function to replace text
 def ReplacePhrases(text, replace_text):
@@ -197,8 +236,147 @@ def listToString(s):
     # traverse in the string   
     for ele in s:  
         str1 = str1 + ele + ' '
-    
     # return string   
     return str1  
 
 #########################################################################################################################################
+
+# 10. find_next_section - Use to find where from next section start
+ 
+def find_next_section(text):
+        print(text)
+        xlsx = pd.ExcelFile('../Master_Data.xlsx')
+        df = pd.read_excel(xlsx, 'Sections')
+        end_of_process = 0
+        for index, row in df.iterrows():
+                        # fuzz.partial_ratio(df.iloc[index,0].upper(),text)
+                        # if fuzz.partial_ratio(df.iloc[index,0].upper(),text) >= 100:
+                        #         if len(text) >= 4:
+                        #                 end_of_process = df.iloc[index,0]
+                        if (df.iloc[index,0].upper() == text):
+                                end_of_process = df.iloc[index,0]
+                                break
+        if text == "EXPERIENCE" or text == "SKILLS":
+                end_of_process = 0
+        if end_of_process == 0:
+                return(end_of_process)
+        else: 
+                end_of_process = 1
+                return(end_of_process)
+
+
+def Find_Values(section,textstr):
+        print(section)
+        count = 1
+        section = section.upper()
+        xlsx = pd.ExcelFile('../Master_Data.xlsx')
+        sec = pd.read_excel(xlsx, section)
+        print(sec)       
+        all_sections = []
+#     wb = Workbook() 
+#     sheet1 = wb.add_sheet("New")
+        ind = 0
+        col_names=['Field','Match_Field','text']
+        MatchedValuesnew = pd.DataFrame()
+        MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
+        for i in sec['Keyword']:        
+                loc = listToString(textstr).upper().find(i.upper())
+                print(loc)
+                if loc>0: 
+                        if section == "NAMES":
+                              if loc <= 100:
+                                        all_sections.append(i)
+                                        print(i)
+                                        #     sheet1.write(ind, 0, i) 
+                                        
+                                        
+                                        MatchedValues.iloc[ind,0]= section
+                                        MatchedValues.iloc[ind,1]= count
+                                        MatchedValues.iloc[ind,2] = i
+                                        count = count + 1
+                                        MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
+                                        print(MatchedValuesnew)
+                                        print(MatchedValues)
+                        else:
+                                        all_sections.append(i)
+                                        print(i)
+                                        #     sheet1.write(ind, 0, i) 
+                                        
+                                        
+                                        MatchedValues.iloc[ind,0]= section
+                                        MatchedValues.iloc[ind,1]= count
+                                        MatchedValues.iloc[ind,2] = i
+                                        count = count + 1
+                                        MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
+                                        print(MatchedValuesnew)
+                                        print(MatchedValues)
+                                        if i == "Female":
+                                                break
+        print(MatchedValuesnew.dropna())
+        #     wb.save("Master_Data.xlsx") 
+        return(MatchedValuesnew.dropna())
+
+
+#########################################################################################################################################        
+# 11. extractName - Use file name or any string and extract name from it
+
+def extractName(filename):
+
+        #removing extension
+        filestr = os.path.splitext(filename)[0]
+
+        filemod =""
+        for x in filestr:
+                # To check if name is in Capital
+                if filestr[0].isupper() and filestr[1].isupper():
+                        filemod = filestr
+                        break
+                
+                # To Split first and last name where no spaces
+                if x.isupper() and x != filestr[0] :
+                        filemod = filemod + " "
+                filemod = filemod + x
+
+        #Replacing common keywords CV/Resume/Profile
+        filestr =  filemod.upper().replace("CV","")
+        filestr =  filestr.upper().replace("RESUME","")
+        filestr =  filestr.upper().replace("PROFILE","")
+        filestr =  filestr.upper().replace("_"," ")
+
+        # Filtering out only text/characters
+        name = re.sub('[^a-z A-Z]+', '', filestr)
+
+        # Extract parts of name
+        namelist = list(filter(None,re.split(" ", name)))
+        firstname = namelist[0]
+        if namelist[0] != namelist[-1] :        
+                lastname  = namelist[-1]
+                middlename = namelist[1:-1]
+
+        col_names=['Field','Match_Field','text']
+        MatchedValues = pd.DataFrame(index=range(1,4), columns=col_names)        
+        
+        # Add to Matched values
+        try:
+                MatchedValues.iloc[0,0]= "First Name"
+                MatchedValues.iloc[0,1]= "First Name"
+                MatchedValues.iloc[0,2] = firstname
+
+                MatchedValues.iloc[1,0]= "Middle Name"
+                MatchedValues.iloc[1,1]= "Middle Name"
+                MatchedValues.iloc[1,2] = ''.join(middlename)
+
+                MatchedValues.iloc[2,0]= "Last Name"
+                MatchedValues.iloc[2,1]= "Last Name"
+                MatchedValues.iloc[2,2] = lastname
+        except: 
+              MatchedValues = MatchedValues
+
+        return MatchedValues
+
+#########################################################################################################################################        
+# 12. Filter_Values - Remove duplicates from dataframe
+
+def Filter_values(before_refine):
+        before_refine = before_refine.sort_values('text', ascending=False).drop_duplicates(['Match_Field'])    
+        return(before_refine)

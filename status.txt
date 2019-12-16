@@ -1,0 +1,32 @@
+
+
+Perfect Capture
+1. Mail ID
+2. Phone No
+3. Skills
+4. Gender
+5. Marital Status
+6. Languages
+7. 
+
+
+Partial Capture
+1. Degree/Colleges/Education
+2. Cities
+3. Company Name
+4. 
+
+
+
+
+Not Capture
+1. Name 
+2. Current Employment
+3. Date of Birth
+4. Personal Projects
+5. Address
+6. Designation
+7. Category
+8. Work Exerience / Duration
+9. Nationality
+10. 
