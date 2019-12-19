@@ -53,18 +53,19 @@ def Findlist(textstr, field_match):
     file_name = field_match[7]
     try:
                 if math.isnan(file_name) == True:
-                        col_names=['Field','Match_Field','text']
+                        col_names=['Field','Match_Field','text','loc']
                         ind = 0
                         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
                         MatchedValues.iloc[ind,0]= field_match[0]
                         MatchedValues.iloc[ind,1]= field_match[1]
                         MatchedValues.iloc[ind,2] = textstr
+                        MatchedValues.iloc[ind,3] = ""
                         context[field_match[1]] = textstr
                 else: 
                         xlsx = pd.ExcelFile('../Master_Data.xlsx')
                         mas_list = pd.read_excel(xlsx, file_name)  
                         ind = 0
-                        col_names=['Field','Match_Field','text']
+                        col_names=['Field','Match_Field','text','loc']
                         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
                                 
                         for i in mas_list['Values']:
@@ -76,13 +77,15 @@ def Findlist(textstr, field_match):
                                         MatchedValues.iloc[ind,0]= field_match[0]
                                         MatchedValues.iloc[ind,1]= field_match[1]
                                         MatchedValues.iloc[ind,2] = i
+                                        MatchedValues.iloc[ind,3] = ""
     except: 
-                col_names=['Field','Match_Field','text']
+                col_names=['Field','Match_Field','text','loc']
                 ind = 0
                 MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
                 MatchedValues.iloc[ind,0]= field_match[0]
                 MatchedValues.iloc[ind,1]= field_match[1]
                 MatchedValues.iloc[ind,2] = textstr 
+                MatchedValues.iloc[ind,3] = ""
     return(MatchedValues)
 
 #########################################################################################################################################
@@ -276,7 +279,7 @@ def Find_Values(section,textstr):
 #     wb = Workbook() 
 #     sheet1 = wb.add_sheet("New")
         ind = 0
-        col_names=['Field','Match_Field','text']
+        col_names=['Field','Match_Field','text','loc']
         MatchedValuesnew = pd.DataFrame()
         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
         for i in sec['Keyword']:        
@@ -293,6 +296,7 @@ def Find_Values(section,textstr):
                                         MatchedValues.iloc[ind,0]= section
                                         MatchedValues.iloc[ind,1]= count
                                         MatchedValues.iloc[ind,2] = i
+                                        MatchedValues.iloc[ind,3] = loc
                                         count = count + 1
                                         MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
                                         print(MatchedValuesnew)
@@ -306,12 +310,15 @@ def Find_Values(section,textstr):
                                         MatchedValues.iloc[ind,0]= section
                                         MatchedValues.iloc[ind,1]= count
                                         MatchedValues.iloc[ind,2] = i
+                                        MatchedValues.iloc[ind,3] = loc
                                         count = count + 1
                                         MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
                                         print(MatchedValuesnew)
                                         print(MatchedValues)
                                         if i == "Female":
                                                 break
+        MatchedValuesnew.sort_values("loc", axis = 0, ascending = True, 
+                                                inplace = True) 
         print(MatchedValuesnew.dropna())
         #     wb.save("Master_Data.xlsx") 
         return(MatchedValuesnew.dropna())
@@ -353,7 +360,7 @@ def extractName(filename):
                 lastname  = namelist[-1]
                 middlename = namelist[1:-1]
 
-        col_names=['Field','Match_Field','text']
+        col_names=['Field','Match_Field','text','loc']
         MatchedValues = pd.DataFrame(index=range(1,4), columns=col_names)        
         
         # Add to Matched values
@@ -361,14 +368,17 @@ def extractName(filename):
                 MatchedValues.iloc[0,0]= "First Name"
                 MatchedValues.iloc[0,1]= "First Name"
                 MatchedValues.iloc[0,2] = firstname
+                MatchedValues.iloc[0,3] = ""
 
                 MatchedValues.iloc[1,0]= "Middle Name"
                 MatchedValues.iloc[1,1]= "Middle Name"
                 MatchedValues.iloc[1,2] = ''.join(middlename)
+                MatchedValues.iloc[1,3] = ""
 
                 MatchedValues.iloc[2,0]= "Last Name"
                 MatchedValues.iloc[2,1]= "Last Name"
                 MatchedValues.iloc[2,2] = lastname
+                MatchedValues.iloc[2,3] = ""
         except: 
               MatchedValues = MatchedValues
 

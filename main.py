@@ -95,14 +95,15 @@ def process_resume(filename):
                                 break
         #     textsec = list(textsec)
                 ##print(textsec)
-                col_names=['Field','Match_Field','text']
+                col_names=['Field','Match_Field','text','loc']
                 # col_names=['Field','Match_Field','text']
                 
                 ind = 0
                 Matchedvaluessheet = pd.DataFrame(index=range(1,1000), columns=col_names)
                 Matchedvaluessheet.iloc[ind,0]= 'Field'
                 Matchedvaluessheet.iloc[ind,1]=  next_section
-                Matchedvaluessheet.iloc[ind,2] = textsec        
+                Matchedvaluessheet.iloc[ind,2] = textsec    
+                Matchedvaluessheet.iloc[ind,3] = "loc"      
         else:
                 textsec = listToString(textstr)
                 try:
@@ -121,19 +122,21 @@ def process_resume(filename):
                                 Matchedvalues = Findlist(refine_match, field_match)
                         else:
                                 if nationality == "Indian":
-                                        col_names=['Field','Match_Field','text']
+                                        col_names=['Field','Match_Field','text','loc']
                                         ind = 0
                                         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
                                         MatchedValues.iloc[ind,0]= 'Find'
                                         MatchedValues.iloc[ind,1]= 'Field'
                                         MatchedValues.iloc[ind,2] = 'Indian'
+                                        MatchedValues.iloc[ind,3] = ''
                                 else:
-                                        col_names=['Field','Match_Field','text']
+                                        col_names=['Field','Match_Field','text','loc']
                                         ind = 0
                                         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
                                         MatchedValues.iloc[ind,0]= 'Find'
                                         MatchedValues.iloc[ind,1]= 'Field'
-                                        MatchedValues.iloc[ind,2] = ''                                
+                                        MatchedValues.iloc[ind,2] = ''    
+                                        MatchedValues.iloc[ind,3] = ''                            
                 except: 
                         Matchedvalues = Findlist(refine_match, field_match)
                 textstr.to_csv('Resume.csv')
@@ -146,8 +149,9 @@ def process_resume(filename):
     
         # Calling Extract Name function
         MatchedValuesName = extractName(filename)
+        print(MatchedValuesName)
         Matchedvaluesdf.append(MatchedValuesName)
-
+        print(Matchedvaluesdf)
         # Remove duplicate values
         Matchedvalues = Filter_values(Matchedvalues)
 
@@ -158,4 +162,4 @@ def process_resume(filename):
         print('Time taken: ' + str(diff.seconds))
 
 # Calling the main function
-process_resume('BhawnaSharma[1_2].pdf')
+process_resume('DixshaChauhan[2_5].pdf')
