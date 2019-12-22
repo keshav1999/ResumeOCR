@@ -40,7 +40,6 @@ from fuzzywuzzy import process
 
 def FindReg(textstr, field_match):
     Pattern = re.compile(field_match[2])
-    print(Pattern)
     matches = Pattern.findall(textstr)
     return(matches)
 
@@ -136,13 +135,13 @@ def GetSections(textstr):
     # Filtering the sections
     j = 0
     for i in sec['Keyword']:   
-        print(i)     
+        
         loc = listToString(textstr).upper().find(i.upper())
-        print(loc)
+        
         ind = 0
         if loc>0:
             all_sections.append(sec['Section'][j])
-            print(i)
+        
         #     sheet1.write(ind, 0, i) 
             ind=ind+1   
         j = j + 1
@@ -158,9 +157,9 @@ def ExtractText(filename):
         lst = []
         # Getting file extension
         file, file_extension = os.path.splitext(filename)
-        print(file_extension)
+        
         wdFormatPDF = 17
-        print(file_extension)
+        
         if file_extension=='.jpg' or file_extension=='.jpeg' or file_extension=='.png' :
 
                 #Converting file name to image array
@@ -170,17 +169,17 @@ def ExtractText(filename):
                 lst.append(text)
         if file_extension=='.doc'or file_extension=='.docx':
                 cmd = 'libreoffice --convert-to pdf'.split() + [filename]
-                print(cmd)
+                
                 p = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                print(p)
+                
                 p.wait(timeout=10)
                 stdout, stderr = p.communicate()
-                print(stderr)
+                
                 if stderr:
                         raise subprocess.SubprocessError(stderr)
                 file_extension = '.pdf'
                 filename = file+'.pdf'
-                print(filename)
+                
         if file_extension=='.pdf':
                 pages = convert_from_path(filename)
                 for page in pages:
@@ -247,7 +246,7 @@ def listToString(s):
 # 10. find_next_section - Use to find where from next section start
  
 def find_next_section(text):
-        print(text)
+        
         xlsx = pd.ExcelFile('../Master_Data.xlsx')
         df = pd.read_excel(xlsx, 'Sections')
         end_of_process = 0
@@ -269,12 +268,12 @@ def find_next_section(text):
 
 
 def Find_Values(section,textstr):
-        print(section)
+        
         count = 1
         section = section.upper()
         xlsx = pd.ExcelFile('../Master_Data.xlsx')
         sec = pd.read_excel(xlsx, section)
-        print(sec)       
+        
         all_sections = []
 #     wb = Workbook() 
 #     sheet1 = wb.add_sheet("New")
@@ -284,12 +283,12 @@ def Find_Values(section,textstr):
         MatchedValues = pd.DataFrame(index=range(1,1000), columns=col_names)
         for i in sec['Keyword']:        
                 loc = listToString(textstr).upper().find(i.upper())
-                print(loc)
+        
                 if loc>0: 
                         if section == "NAMES":
                               if loc <= 100:
                                         all_sections.append(i)
-                                        print(i)
+        
                                         #     sheet1.write(ind, 0, i) 
                                         
                                         
@@ -299,11 +298,10 @@ def Find_Values(section,textstr):
                                         MatchedValues.iloc[ind,3] = loc
                                         count = count + 1
                                         MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
-                                        print(MatchedValuesnew)
-                                        print(MatchedValues)
+        
                         else:
                                         all_sections.append(i)
-                                        print(i)
+        
                                         #     sheet1.write(ind, 0, i) 
                                         
                                         
@@ -313,8 +311,7 @@ def Find_Values(section,textstr):
                                         MatchedValues.iloc[ind,3] = loc
                                         count = count + 1
                                         MatchedValuesnew = MatchedValuesnew.append(MatchedValues)
-                                        print(MatchedValuesnew)
-                                        print(MatchedValues)
+        
                                         if i == "Female":
                                                 break
         # MatchedValuesnew.sort_values("loc", axis = 0, ascending = True, 

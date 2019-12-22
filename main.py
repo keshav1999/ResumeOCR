@@ -23,7 +23,7 @@ def process_resume(filename):
     name = filename
     names = name.split('.')
     
-    # Code for reading doc or docx files to be added
+    # Code for reading doc or docrint(Matchedvaluesdf.dropna())x files to be added
     textstr,text = ExtractText(filename)
     
     # Reading csv containing all master data related to fields
@@ -32,14 +32,12 @@ def process_resume(filename):
     
     # Get all section from the text
     all_sections = GetSections(textstr)
-    print(all_sections)
+    
     Matchedvaluesdf = pd.DataFrame()
     
     # Reading index and text from passed string to extract each sentence
     for index,field_match in df.iterrows():
-        print(field_match)
-        print(df.iloc[index,2])
-        print(df.iloc[index,7])
+    
         x= 0
         # Setting filter regex
         try:
@@ -74,8 +72,7 @@ def process_resume(filename):
                         replace_text = df.iloc[index,4]
                 else: replace_text=''
         except: replace_text = df.iloc[index,4]
-        # Matchedvalueslist = []
-        print(field_match[8])
+    
         #1	check if Section is present and section is part of all sections then get the filtered text for that section
         if field_match[8] != '' and len(all_sections[all_sections == field_match[8]]) != 0:
                 x = 1
@@ -149,9 +146,9 @@ def process_resume(filename):
     
         # Calling Extract Name function
         MatchedValuesName = extractName(filename)
-        print(MatchedValuesName)
+    
         Matchedvaluesdf.append(MatchedValuesName)
-        print(Matchedvaluesdf)
+    
         # Remove duplicate values
         Matchedvalues = Filter_values(Matchedvalues)
 
