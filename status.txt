@@ -7,7 +7,7 @@ Perfect Capture
 4. Gender
 5. Marital Status
 6. Languages
-7. 
+7. Name 
 
 
 Partial Capture
@@ -20,7 +20,6 @@ Partial Capture
 
 
 Not Capture
-1. Name 
 2. Current Employment
 3. Date of Birth
 4. Personal Projects
