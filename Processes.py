@@ -33,6 +33,7 @@ from fuzzywuzzy import process
 # 10. find_next_section - Use to find where from next section start
 # 11. extractName - Use file name or any string and extract name from it
 # 12. Filter_Values - Remove duplicates from dataframe
+# 13. define_nationality - Pick nationality or be default
 
 #########################################################################################################################################
 # 1. FindAbs - Just use regex to filter
@@ -384,5 +385,20 @@ def extractName(filename):
 def Filter_values(before_refine):
         before_refine = before_refine.sort_values('text', ascending=False).drop_duplicates(['Match_Field'])    
         return(before_refine)
+
+#########################################################################################################################################        
+# 13. define_nationality - Pick nationality or be default
+
+def define_nationality(MatchedValues):
+        
+
+        if MatchedValues.Field.isin('NATIONALITY'):
+                return(MatchedValues)
+        else:
+                MatchedValues.iloc[MatchedValues.shape[0],0]= "NATIONALITY"
+                MatchedValues.iloc[MatchedValues.shape[0],1]= "NATIONALITY"
+                MatchedValues.iloc[MatchedValues.shape[0],2] = "Indian"
+                MatchedValues.iloc[MatchedValues.shape[0],3] = "0"                
+                return(MatchedValues)
 
 

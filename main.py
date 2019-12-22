@@ -15,7 +15,7 @@ from Processes import RefineMatches, ReplacePhrases
 from Processes import listToString
 from Processes import extractName
 from Processes import Filter_values
-
+from Processes import define_nationality
 
 os.chdir(r'/home/tanmay/Desktop/My Projects/ResumeOCRfile/Resume')
 def process_resume(filename):
@@ -150,6 +150,8 @@ def process_resume(filename):
 
                 endtime = datetime.now()
                 diff = endtime - starttime
+
+                MatchedValuesdf = define_nationality(MatchedValuesdf)
 
         print(Matchedvaluesdf.dropna())    
         print('Time taken: ' + str(diff.seconds))
