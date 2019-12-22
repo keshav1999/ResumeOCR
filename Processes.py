@@ -317,8 +317,8 @@ def Find_Values(section,textstr):
                                         print(MatchedValues)
                                         if i == "Female":
                                                 break
-        MatchedValuesnew.sort_values("loc", axis = 0, ascending = True, 
-                                                inplace = True) 
+        # MatchedValuesnew.sort_values("loc", axis = 0, ascending = True, 
+        #                                         inplace = True) 
         print(MatchedValuesnew.dropna())
         #     wb.save("Master_Data.xlsx") 
         return(MatchedValuesnew.dropna())
